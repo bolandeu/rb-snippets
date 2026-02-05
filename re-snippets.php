@@ -9,28 +9,21 @@
 
 if (!defined('ABSPATH')) exit;
 
-// 1. АВТООБНОВЛЕНИЕ (Библиотека должна лежать в папке vendor)
+
+// 1. ОБНОВЛЕНИЯ ПЛАГИНА ЧЕРЕЗ GITHUB
+require 'path/to/plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+$myUpdateChecker = PucFactory::buildUpdateChecker(
+	'https://github.com/bolandeu/rb-snippets/',
+	__FILE__,
+	'rb-snippets'
+);
+$myUpdateChecker->setBranch('main');
 
-if (file_exists(plugin_dir_path(__FILE__) . 'vendors/plugin-update-checker/plugin-update-checker.php')) {
-    require_once plugin_dir_path(__FILE__) . 'vendors/plugin-update-checker/plugin-update-checker.php';
 
-    $myUpdateChecker = PucFactory::buildUpdateChecker(
-        'https://github.com/bolandeu/rb-snippets/',
-        __FILE__,
-        'rb-snippets'
-    );
-    $myUpdateChecker->getStrategy()->setBranch('main');
-}
-
-// 2. Запрет прямого доступа
-if (!defined('ABSPATH')) exit;
- 
-// Список функций, раскоментировать для активации
-
+// 2. СПИСОК ИНКЛУДОВ СНИППЕТОВ
 require_once plugin_dir_path( __FILE__ ) . 'inc/shortcodes.php';
-
- // require_once plugin_dir_path( __FILE__ ) . 'inc/acf-shortcode.php';
+// require_once plugin_dir_path( __FILE__ ) . 'inc/acf-shortcode.php';
 // require_once plugin_dir_path( __FILE__ ) . 'inc/rest-api-extensions.php';
 // require_once plugin_dir_path( __FILE__ ) . 'inc/smtp.php';
 // require_once plugin_dir_path( __FILE__ ) . 'inc/permalink-manager-rest.php';
