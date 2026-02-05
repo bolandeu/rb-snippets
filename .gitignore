@@ -1,0 +1,12 @@
+*.md
+*.idea
+*.log
+
+.git
+.git/
+.claude
+.claude/
+.vscode
+.vscode/
+docs
+docs/
