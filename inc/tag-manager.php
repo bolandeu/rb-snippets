@@ -8,17 +8,13 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * ID счетчика Яндекс.Метрики
- * Оставьте пустым, чтобы отключить вывод скриптов
- */
-$ywm_counter = '99296594';
-
-/**
- * Получить ID счетчика Яндекс.Метрики
+ * Получить ID счетчика Яндекс.Метрики из ACF options
  */
 function rb_get_ym_counter() {
-    global $ywm_counter;
-    return $ywm_counter;
+    if (function_exists('get_field')) {
+        return get_field('ym_counter', 'option');
+    }
+    return '';
 }
 
 /**
@@ -60,6 +56,50 @@ function rb_ym_counter_head() {
     <?php
 }
 add_action('wp_head', 'rb_ym_counter_head', 1);
+
+/**
+ * Получить ID пикселя VK (Top.Mail.Ru) из ACF options
+ */
+function rb_get_vk_pixel() {
+    if (function_exists('get_field')) {
+        return get_field('vk_pixel', 'option');
+    }
+    return '';
+}
+
+/**
+ * Вывод кода пикселя VK (Top.Mail.Ru) в head
+ */
+function rb_vk_pixel_head() {
+    if (is_admin()) {
+        return;
+    }
+
+    $vk_pixel = rb_get_vk_pixel();
+
+    if (empty($vk_pixel)) {
+        return;
+    }
+
+    $vk_pixel = esc_attr($vk_pixel);
+    ?>
+<!-- Top.Mail.Ru counter -->
+<script type="text/javascript">
+var _tmr = window._tmr || (window._tmr = []);
+_tmr.push({id: "<?php echo $vk_pixel; ?>", type: "pageView", start: (new Date()).getTime()});
+(function (d, w, id) {
+  if (d.getElementById(id)) return;
+  var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true; ts.id = id;
+  ts.src = "https://top-fwz1.mail.ru/js/code.js";
+  var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};
+  if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
+})(document, window, "tmr-code");
+</script>
+<noscript><div><img src="https://top-fwz1.mail.ru/counter?id=<?php echo $vk_pixel; ?>;js=na" style="position:absolute;left:-9999px;" alt="Top.Mail.Ru" /></div></noscript>
+<!-- /Top.Mail.Ru counter -->
+    <?php
+}
+add_action('wp_head', 'rb_vk_pixel_head', 2);
 
 /**
  * Вывод скриптов отслеживания событий перед </body>

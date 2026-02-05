@@ -47,6 +47,14 @@ function rb_snippets_help_page_html() {
                class="nav-tab <?php echo $current_tab === 'acf-settings' ? 'nav-tab-active' : ''; ?>">
                 ACF Settings
             </a>
+            <a href="?page=rb-snippets-help&tab=blocksy"
+               class="nav-tab <?php echo $current_tab === 'blocksy' ? 'nav-tab-active' : ''; ?>">
+                Blocksy
+            </a>
+            <a href="?page=rb-snippets-help&tab=utilities"
+               class="nav-tab <?php echo $current_tab === 'utilities' ? 'nav-tab-active' : ''; ?>">
+                Утилиты
+            </a>
         </nav>
 
         <div class="tab-content" style="margin-top: 20px;">
@@ -66,6 +74,12 @@ function rb_snippets_help_page_html() {
                     break;
                 case 'acf-settings':
                     rb_snippets_tab_acf_settings();
+                    break;
+                case 'blocksy':
+                    rb_snippets_tab_blocksy();
+                    break;
+                case 'utilities':
+                    rb_snippets_tab_utilities();
                     break;
                 default:
                     rb_snippets_tab_shortcodes();
@@ -167,6 +181,27 @@ function rb_snippets_tab_shortcodes() {
         </tbody>
     </table>
     <p><em>Примечание: Код автоматически игнорирует пустые блоки и переносы строк.</em></p>
+
+    <h2>[current_year] - Текущий год</h2>
+    <table class="widefat fixed striped" style="margin-bottom: 30px;">
+        <thead>
+            <tr>
+                <th style="width: 35%;">Пример</th>
+                <th>Описание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>[current_year]</code></td>
+                <td>Выводит текущий год: <code><?php echo date('Y'); ?></code></td>
+            </tr>
+            <tr>
+                <td><code>© [current_year] Компания</code></td>
+                <td>Пример использования в футере для копирайта</td>
+            </tr>
+        </tbody>
+    </table>
+    <p><em>Полезно для автоматического обновления года в копирайте без ручной правки.</em></p>
     <?php
 }
 
@@ -569,5 +604,161 @@ if (!empty($social['facebook'])) {
     echo '&lt;a href="' . esc_url($social['facebook']) . '"&gt;Facebook&lt;/a&gt;';
 }
 ?&gt;</pre>
+    <?php
+}
+
+/**
+ * Tab: Blocksy Theme Extensions
+ */
+function rb_snippets_tab_blocksy() {
+    ?>
+    <h2>Расширения для темы Blocksy</h2>
+    <p>Файл: <code>inc/blocksy.php</code></p>
+    <p><em>Функции активируются только если активна тема Blocksy или её дочерняя тема.</em></p>
+
+    <h3>Дополнительные социальные сети</h3>
+    <p>Плагин добавляет возможность использовать следующие соцсети в виджетах Blocksy:</p>
+    <ul>
+        <li><strong>Дзен</strong> — Яндекс.Дзен</li>
+        <li><strong>Rutube</strong> — Российский видеохостинг</li>
+    </ul>
+    <p>После активации плагина эти соцсети появятся в настройках Blocksy → Социальные сети.</p>
+
+    <hr style="margin: 30px 0;">
+
+    <h2>Кастомные хлебные крошки (Breadcrumbs)</h2>
+    <p>Функция: <code>rb_breadcrumbs()</code></p>
+    <p>Альтернативные хлебные крошки с полной поддержкой Schema.org разметки.</p>
+
+    <h3>Использование в шаблоне</h3>
+    <pre style="background: #f5f5f5; padding: 15px; overflow-x: auto;">&lt;?php
+if (function_exists('rb_breadcrumbs')) {
+    rb_breadcrumbs();
+}
+?&gt;</pre>
+
+    <h3>Особенности</h3>
+    <ul>
+        <li>Полная микроразметка Schema.org (BreadcrumbList)</li>
+        <li>Поддержка CPT (произвольных типов записей) и таксономий</li>
+        <li>Автоматическое построение иерархии родительских категорий</li>
+        <li>Поддержка пагинации</li>
+        <li>CSS класс <code>.ct-breadcrumbs</code> для стилизации</li>
+    </ul>
+
+    <h3>Настройка отображения</h3>
+    <p>В начале функции <code>rb_breadcrumbs()</code> можно настроить, на каких страницах скрывать хлебные крошки:</p>
+    <pre style="background: #f5f5f5; padding: 15px; overflow-x: auto;">// По умолчанию скрыты на:
+// - Архивах CPT (is_post_type_archive)
+// - Главной блога и категориях (is_home, is_category)
+
+// Раскомментируйте нужные строки в коде для скрытия на:
+// - Главной странице (is_front_page)
+// - Страницах таксономий (is_tax)</pre>
+
+    <h3>Поддерживаемые типы страниц</h3>
+    <table class="widefat fixed striped">
+        <thead>
+            <tr>
+                <th>Тип страницы</th>
+                <th>Описание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Записи (posts)</td><td>Главная → Категория → Запись</td></tr>
+            <tr><td>CPT (произвольные типы)</td><td>Главная → Архив CPT → Таксономия → Запись</td></tr>
+            <tr><td>Страницы</td><td>Главная → Родительская страница → Страница</td></tr>
+            <tr><td>Таксономии</td><td>Главная → Архив CPT → Родительский термин → Термин</td></tr>
+            <tr><td>Категории</td><td>Главная → Родительская категория → Категория</td></tr>
+            <tr><td>Даты</td><td>Главная → Год → Месяц → День</td></tr>
+            <tr><td>Поиск</td><td>Главная → Результаты поиска</td></tr>
+            <tr><td>404</td><td>Главная → Ошибка 404</td></tr>
+        </tbody>
+    </table>
+    <?php
+}
+
+/**
+ * Tab: Utilities (IMask, Admin improvements, etc.)
+ */
+function rb_snippets_tab_utilities() {
+    ?>
+    <h2>IMask - Маска ввода телефона</h2>
+    <p>Файл: <code>inc/imask/imask.php</code></p>
+    <p>Автоматически применяет маску ввода телефона к полям с классом <code>.phone-input</code></p>
+
+    <h3>Использование</h3>
+    <pre style="background: #f5f5f5; padding: 15px; overflow-x: auto;">&lt;input type="tel" class="phone-input" placeholder="+7 (___) ___-__-__"&gt;</pre>
+
+    <h3>Формат маски</h3>
+    <p>По умолчанию используется российский формат: <code>+7 (000) 000-00-00</code></p>
+
+    <h3>Примеры в Contact Form 7</h3>
+    <pre style="background: #f5f5f5; padding: 15px; overflow-x: auto;">[tel* your-phone class:phone-input placeholder "+7 (___) ___-__-__"]</pre>
+
+    <p><strong>Важно:</strong> Класс <code>.phone-input</code> используется только для маски ввода. Для подмены телефонов через Sourcebuster используется отдельный класс <code>.phone</code>.</p>
+
+    <hr style="margin: 30px 0;">
+
+    <h2>Улучшения админки</h2>
+    <p>Файл: <code>inc/admin-manage.php</code></p>
+    <p>Автоматические улучшения для удобства работы в админ-панели WordPress.</p>
+
+    <h3>1. Фильтры по таксономиям</h3>
+    <p>Добавляет выпадающие списки фильтрации по всем таксономиям для произвольных типов записей (CPT).</p>
+    <table class="widefat fixed striped" style="margin-bottom: 20px;">
+        <thead>
+            <tr>
+                <th>Функция</th>
+                <th>Описание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Автоматическое добавление</td>
+                <td>Фильтры появляются для всех CPT с публичными таксономиями</td>
+            </tr>
+            <tr>
+                <td>Исключения</td>
+                <td>Стандартные типы (post, page, attachment) не затрагиваются</td>
+            </tr>
+            <tr>
+                <td>Иерархия</td>
+                <td>Поддержка вложенных терминов (до 3 уровней)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>2. Колонка с миниатюрами</h3>
+    <p>Добавляет колонку "Фото" с превью изображения во все списки записей.</p>
+    <table class="widefat fixed striped">
+        <thead>
+            <tr>
+                <th>Параметр</th>
+                <th>Значение</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Размер превью</td>
+                <td>80×50 пикселей (пропорционально)</td>
+            </tr>
+            <tr>
+                <td>Позиция колонки</td>
+                <td>После чекбокса, перед заголовком</td>
+            </tr>
+            <tr>
+                <td>Типы записей</td>
+                <td>Все публичные типы записей</td>
+            </tr>
+            <tr>
+                <td>Если нет фото</td>
+                <td>Отображается прочерк (—)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Скриншот</h3>
+    <p>После активации плагина в списке записей появится новая колонка "Фото" и выпадающие фильтры по таксономиям.</p>
     <?php
 }

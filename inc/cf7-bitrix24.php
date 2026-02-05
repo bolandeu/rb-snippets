@@ -8,33 +8,66 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * НАСТРОЙКИ
+ * Получить webhook Битрикс24 из ACF options
  */
-$rb_b24_webhook = 'https://your-domain.bitrix24.ru/rest/1/your-webhook-token/';
+function rb_get_b24_webhook() {
+    if (function_exists('get_field')) {
+        return get_field('b24_webhook', 'option') ?: '';
+    }
+    return '';
+}
 
-// ID форм, которые НЕ отправлять в Битрикс24 (оставьте пустым для отправки всех)
-$rb_b24_excluded_forms = array();
+/**
+ * Парсинг маппинга пользовательских полей Битрикс24 из ACF options
+ * Формат: field_name:UF_CRM_xxx (каждое с новой строки)
+ *
+ * @return array ['page_url' => 'UF_CRM_xxx', 'site_domain' => 'UF_CRM_xxx', ...]
+ */
+function rb_parse_b24_custom_fields() {
+    if (!function_exists('get_field')) {
+        return array();
+    }
 
-// Маппинг пользовательских полей Битрикс24
-$rb_b24_custom_fields = array(
-    'page_url'       => 'UF_CRM_1739778385613',  // URL страницы
-    'site_domain'    => 'UF_CRM_1737881299253',  // Домен сайта
-    'referer'        => 'UF_CRM_1739778385613',  // Реферер
-    'responsible_id' => 'UF_CRM_1739776827819',  // ID ответственного
-    'ymcid'          => 'UF_CRM_1737881322910',  // Yandex Metrika Client ID
-    'sbjs_first'     => 'UF_CRM_1737884236235',  // Sourcebuster first
-    'sbjs_current'   => 'UF_CRM_1737884245367',  // Sourcebuster current
-    'sbjs_udata'     => 'UF_CRM_1737884255702',  // Sourcebuster user data
-);
+    $mapping_text = get_field('b24_custom_fields', 'option');
+    if (empty($mapping_text)) {
+        return array();
+    }
+
+    $fields = array();
+    $lines = preg_split('/\r\n|\r|\n/', trim($mapping_text));
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line)) {
+            continue;
+        }
+
+        // Разделитель - первое двоеточие
+        $pos = strpos($line, ':');
+        if ($pos === false) {
+            continue;
+        }
+
+        $field_name = strtolower(trim(substr($line, 0, $pos)));
+        $uf_code = trim(substr($line, $pos + 1));
+
+        if (!empty($field_name) && !empty($uf_code)) {
+            $fields[$field_name] = $uf_code;
+        }
+    }
+
+    return $fields;
+}
 
 /**
  * Обработчик отправки CF7 в Битрикс24
  */
 function rb_cf7_to_bitrix24($contact_form, &$abort, $submission) {
-    global $rb_b24_webhook, $rb_b24_excluded_forms, $rb_b24_custom_fields;
+    $rb_b24_webhook = rb_get_b24_webhook();
+    $rb_b24_custom_fields = rb_parse_b24_custom_fields();
 
     // Проверяем настройки
-    if (empty($rb_b24_webhook) || $rb_b24_webhook === 'https://your-domain.bitrix24.ru/rest/1/your-webhook-token/') {
+    if (empty($rb_b24_webhook)) {
         return $submission;
     }
 

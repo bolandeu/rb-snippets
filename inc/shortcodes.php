@@ -1,5 +1,11 @@
 <?php
 
+// [current_year] - вывод текущего года
+function current_year_shortcode() {
+    return date('Y');
+}
+add_shortcode('current_year', 'current_year_shortcode');
+
 /**
  * Plugin Name: Custom shortcodes (MU)
  * Description: Adds special shortcodes [domain] and [url] shortcodes.

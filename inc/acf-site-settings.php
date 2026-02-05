@@ -164,18 +164,6 @@ function register_default_site_settings_fields() {
                 'type' => 'text',
                 'required' => 0,
             ),
-
-            // ============================================================
-            // ВКЛАДКА: Банковские реквизиты
-            // ============================================================
-            array(
-                'key' => 'field_tab_bank',
-                'label' => 'Банковские реквизиты',
-                'name' => '',
-                'type' => 'tab',
-                'placement' => 'top',
-                'endpoint' => 0,
-            ),
             // Расчетный счет
             array(
                 'key' => 'field_rs',
@@ -243,6 +231,8 @@ function register_default_site_settings_fields() {
                 'name' => 'latitude',
                 'type' => 'text',
                 'required' => 0,
+                'instructions' => 'Пример: 55.751244',
+                'wrapper' => array('width' => '50'),
             ),
             // Долгота
             array(
@@ -251,18 +241,17 @@ function register_default_site_settings_fields() {
                 'name' => 'longitude',
                 'type' => 'text',
                 'required' => 0,
+                'instructions' => 'Пример: 37.618423',
+                'wrapper' => array('width' => '50'),
             ),
-
-            // ============================================================
-            // ВКЛАДКА: Карты и геосервисы
-            // ============================================================
+            // Google карты
             array(
-                'key' => 'field_tab_maps',
-                'label' => 'Карты и геосервисы',
-                'name' => '',
-                'type' => 'tab',
-                'placement' => 'top',
-                'endpoint' => 0,
+                'key' => 'field_google_maps',
+                'label' => 'Google Maps',
+                'name' => 'google_maps',
+                'type' => 'text',
+                'required' => 0,
+                'instructions' => 'Ссылка на организацию в Google Maps',
             ),
             // Яндекс карты
             array(
@@ -362,6 +351,170 @@ function register_default_site_settings_fields() {
                 'key' => 'field_max',
                 'label' => 'MAX',
                 'name' => 'max',
+                'type' => 'text',
+                'required' => 0,
+            ),
+
+            // ============================================================
+            // ВКЛАДКА: Интеграции
+            // ============================================================
+            array(
+                'key' => 'field_tab_integrations',
+                'label' => 'Интеграции',
+                'name' => '',
+                'type' => 'tab',
+                'placement' => 'top',
+                'endpoint' => 0,
+            ),
+
+            // --- Яндекс.Метрика ---
+            array(
+                'key' => 'field_ym_counter',
+                'label' => 'ID счетчика Яндекс.Метрики',
+                'name' => 'ym_counter',
+                'type' => 'text',
+                'required' => 0,
+                'instructions' => 'Оставьте пустым для отключения. Пример: 99296594',
+            ),
+
+            // --- VK Pixel (Top.Mail.Ru) ---
+            array(
+                'key' => 'field_vk_pixel',
+                'label' => 'ID пикселя VK (Top.Mail.Ru)',
+                'name' => 'vk_pixel',
+                'type' => 'text',
+                'required' => 0,
+                'instructions' => 'Оставьте пустым для отключения. Пример: 3740103',
+            ),
+
+            // --- Подмена телефонов (Sourcebuster) ---
+            array(
+                'key' => 'field_phone_mapping',
+                'label' => 'Подмена телефонов по источникам',
+                'name' => 'phone_mapping',
+                'type' => 'textarea',
+                'required' => 0,
+                'rows' => 6,
+                'instructions' => 'Формат: источник:телефон (каждый с новой строки).<br>
+<strong>default</strong> - телефон по умолчанию (обязателен).<br>
+Источники: yandex, google, vk, facebook, instagram, telegram и др.<br>
+Пример:<br>
+<code>default:+7 (495) 111-11-11</code><br>
+<code>yandex:+7 (495) 222-22-22</code><br>
+<code>google:+7 (495) 333-33-33</code>',
+                'default_value' => 'default:+7 (495) 000-00-00',
+            ),
+
+            // --- Telegram ---
+            array(
+                'key' => 'field_tg_bot_token',
+                'label' => 'Telegram Bot Token',
+                'name' => 'tg_bot_token',
+                'type' => 'text',
+                'required' => 0,
+                'instructions' => 'Получить у @BotFather',
+            ),
+            array(
+                'key' => 'field_tg_chat_id',
+                'label' => 'Telegram Chat ID',
+                'name' => 'tg_chat_id',
+                'type' => 'text',
+                'required' => 0,
+                'instructions' => 'Получить у @userinfobot. Для групп начинается с -100',
+            ),
+
+            // --- Битрикс24 ---
+            array(
+                'key' => 'field_b24_webhook',
+                'label' => 'Битрикс24 Webhook URL',
+                'name' => 'b24_webhook',
+                'type' => 'text',
+                'required' => 0,
+                'instructions' => 'Пример: https://your-domain.bitrix24.ru/rest/1/token/',
+            ),
+            array(
+                'key' => 'field_b24_custom_fields',
+                'label' => 'Маппинг пользовательских полей',
+                'name' => 'b24_custom_fields',
+                'type' => 'textarea',
+                'required' => 0,
+                'rows' => 10,
+                'instructions' => 'Формат: имя_поля:UF_CRM_ID (каждое с новой строки).<br>
+Доступные поля: page_url, site_domain, referer, responsible_id, ymcid, sbjs_first, sbjs_current, sbjs_udata<br>
+Пример:<br>
+<code>page_url:UF_CRM_1739778385613</code><br>
+<code>site_domain:UF_CRM_1737881299253</code><br>
+<code>ymcid:UF_CRM_1737881322910</code><br>
+<code>sbjs_first:UF_CRM_1737884236235</code><br>
+<code>sbjs_current:UF_CRM_1737884245367</code>',
+            ),
+
+            // ============================================================
+            // ВКЛАДКА: SMTP
+            // ============================================================
+            array(
+                'key' => 'field_tab_smtp',
+                'label' => 'SMTP',
+                'name' => '',
+                'type' => 'tab',
+                'placement' => 'top',
+                'endpoint' => 0,
+            ),
+            array(
+                'key' => 'field_smtp_host',
+                'label' => 'SMTP сервер',
+                'name' => 'smtp_host',
+                'type' => 'text',
+                'required' => 0,
+                'instructions' => 'Пример: smtp.yandex.ru',
+            ),
+            array(
+                'key' => 'field_smtp_port',
+                'label' => 'SMTP порт',
+                'name' => 'smtp_port',
+                'type' => 'number',
+                'required' => 0,
+                'default_value' => 465,
+                'instructions' => '465 для SSL, 587 для TLS',
+            ),
+            array(
+                'key' => 'field_smtp_secure',
+                'label' => 'Шифрование',
+                'name' => 'smtp_secure',
+                'type' => 'select',
+                'required' => 0,
+                'choices' => array(
+                    'ssl' => 'SSL',
+                    'tls' => 'TLS',
+                ),
+                'default_value' => 'ssl',
+            ),
+            array(
+                'key' => 'field_smtp_username',
+                'label' => 'SMTP логин',
+                'name' => 'smtp_username',
+                'type' => 'text',
+                'required' => 0,
+                'instructions' => 'Обычно email адрес',
+            ),
+            array(
+                'key' => 'field_smtp_password',
+                'label' => 'SMTP пароль',
+                'name' => 'smtp_password',
+                'type' => 'text',
+                'required' => 0,
+            ),
+            array(
+                'key' => 'field_smtp_from',
+                'label' => 'Email отправителя',
+                'name' => 'smtp_from',
+                'type' => 'email',
+                'required' => 0,
+            ),
+            array(
+                'key' => 'field_smtp_from_name',
+                'label' => 'Имя отправителя',
+                'name' => 'smtp_from_name',
                 'type' => 'text',
                 'required' => 0,
             ),

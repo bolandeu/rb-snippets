@@ -24,6 +24,7 @@ function permalink_manager_rest_is_active() {
 
 /**
  * Регистрация REST API полей для Permalink Manager
+ * Проверка активности плагина происходит на rest_api_init когда все плагины загружены
  */
 add_action('rest_api_init', 'register_permalink_manager_rest_fields');
 

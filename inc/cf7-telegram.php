@@ -8,22 +8,26 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * НАСТРОЙКИ
+ * Получить настройки Telegram из ACF options
  */
-$rb_tg_bot_token = '';  // Токен бота (получить у @BotFather)
-$rb_tg_chat_id   = '';  // ID чата/группы (получить у @userinfobot или @getidsbot)
-
-// ID форм, которые НЕ отправлять в Telegram (оставьте пустым для отправки всех)
-$rb_tg_excluded_forms = array();
+function rb_get_tg_settings() {
+    if (!function_exists('get_field')) {
+        return array('bot_token' => '', 'chat_id' => '');
+    }
+    return array(
+        'bot_token' => get_field('tg_bot_token', 'option') ?: '',
+        'chat_id'   => get_field('tg_chat_id', 'option') ?: '',
+    );
+}
 
 /**
  * Обработчик отправки CF7 в Telegram
  */
 function rb_cf7_to_telegram($contact_form, &$abort, $submission) {
-    global $rb_tg_bot_token, $rb_tg_chat_id, $rb_tg_excluded_forms;
+    $tg = rb_get_tg_settings();
 
     // Проверяем настройки
-    if (empty($rb_tg_bot_token) || empty($rb_tg_chat_id)) {
+    if (empty($tg['bot_token']) || empty($tg['chat_id'])) {
         return $submission;
     }
 
@@ -124,12 +128,12 @@ function rb_cf7_to_telegram($contact_form, &$abort, $submission) {
     }
 
     // Отправка в Telegram
-    $api_url = "https://api.telegram.org/bot{$rb_tg_bot_token}/sendMessage";
+    $api_url = "https://api.telegram.org/bot{$tg['bot_token']}/sendMessage";
 
     $response = wp_remote_post($api_url, array(
         'timeout' => 15,
         'body'    => array(
-            'chat_id'    => $rb_tg_chat_id,
+            'chat_id'    => $tg['chat_id'],
             'text'       => $text,
             'parse_mode' => 'Markdown',
         ),

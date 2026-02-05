@@ -4,23 +4,57 @@
  *
  * Подключение библиотеки Sourcebuster для отслеживания источников трафика
  * и подмены телефонов в зависимости от источника
+ * Настройки берутся из ACF options (Настройки сайта → Интеграции)
  */
 
 if (!defined('ABSPATH')) exit;
 
 /**
- * Настройки подмены телефонов
- * Оставьте пустыми, чтобы отключить подмену
+ * Парсинг маппинга телефонов из ACF options
+ * Формат: source:phone (каждый с новой строки)
+ *
+ * @return array ['default' => '+7...', 'yandex' => '+7...', ...]
  */
-$rb_phone_default = '+7 (495) 275-30-85';  // Телефон по умолчанию
-$rb_phone_yandex  = '+7 (495) 275-30-88';  // Телефон для Яндекса
+function rb_parse_phone_mapping() {
+    if (!function_exists('get_field')) {
+        return array();
+    }
+
+    $mapping_text = get_field('phone_mapping', 'option');
+    if (empty($mapping_text)) {
+        return array();
+    }
+
+    $phones = array();
+    $lines = preg_split('/\r\n|\r|\n/', trim($mapping_text));
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line)) {
+            continue;
+        }
+
+        // Разделитель - первое двоеточие
+        $pos = strpos($line, ':');
+        if ($pos === false) {
+            continue;
+        }
+
+        $source = strtolower(trim(substr($line, 0, $pos)));
+        $phone = trim(substr($line, $pos + 1));
+
+        if (!empty($source) && !empty($phone)) {
+            $phones[$source] = $phone;
+        }
+    }
+
+    return $phones;
+}
 
 /**
  * Подключение Sourcebuster.js на публичных страницах
  */
 function rb_enqueue_sourcebuster() {
-    global $rb_phone_default, $rb_phone_yandex;
-
     // Только на публичных страницах
     if (is_admin()) {
         return;
@@ -44,31 +78,42 @@ function rb_enqueue_sourcebuster() {
         isolate: true
     });';
 
-    // Добавляем подмену телефонов если настроены
-    if (!empty($rb_phone_default)) {
-        $old_phone = esc_js($rb_phone_default);
-        $def_phone = esc_js($rb_phone_default);
-        $yandex_phone = !empty($rb_phone_yandex) ? esc_js($rb_phone_yandex) : $def_phone;
+    // Получаем маппинг телефонов
+    $phones = rb_parse_phone_mapping();
+
+    // Добавляем подмену телефонов если:
+    // - есть default
+    // - есть хотя бы один другой источник (иначе нечего подменять)
+    // - default не является плейсхолдером
+    $placeholder_phone = '+7 (495) 000-00-00';
+    $has_real_default = !empty($phones['default']) && $phones['default'] !== $placeholder_phone;
+    $has_other_sources = count($phones) > 1;
+
+    if ($has_real_default && $has_other_sources) {
+        // Формируем JS объект с телефонами
+        $phones_js = array();
+        foreach ($phones as $source => $phone) {
+            $phones_js[] = '"' . esc_js($source) . '": "' . esc_js($phone) . '"';
+        }
+        $phones_json = '{' . implode(', ', $phones_js) . '}';
 
         $inline_js .= '
 (function() {
+    var phones = ' . $phones_json . ';
     var source = sbjs.get.current.src;
-    var oldPhone = "' . $old_phone . '";
-    var defPhone = "' . $def_phone . '";
-    var yandexPhone = "' . $yandex_phone . '";
+    var oldPhone = phones["default"];
+    var newPhone = phones[source] || phones["default"];
 
-    if (source === "yandex") {
-        defPhone = yandexPhone;
-    }
+    if (!oldPhone) return;
 
     document.querySelectorAll(".phone").forEach(function(element) {
         // Замена текста (только если нет дочерних элементов)
         if (!element.children.length) {
-            element.textContent = element.textContent.replace(oldPhone, defPhone);
+            element.textContent = element.textContent.replace(oldPhone, newPhone);
         }
         // Замена href
         if (element.getAttribute("href")) {
-            element.setAttribute("href", "tel:" + defPhone.replace(/[^+0-9]/g, ""));
+            element.setAttribute("href", "tel:" + newPhone.replace(/[^+0-9]/g, ""));
         }
     });
 })();';
