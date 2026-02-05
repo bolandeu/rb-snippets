@@ -3,7 +3,7 @@ Contributors: yourgithubusername
 Tags: shortcode, content, blocks, page content
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 
 == Description ==
@@ -14,6 +14,11 @@ License: GPLv2 or later
 2. Активируйте плагин через меню 'Плагины' в WordPress.
 
 == Changelog ==
+
+= 1.0.2 =
+* Интеграция с Битрикс
+* Интеграция с Телеграм
+
 
 = 1.0.1 =
 * Добавлена возможность фильтрации пустых блоков и тегов P.
