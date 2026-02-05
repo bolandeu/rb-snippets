@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RB Snippets
  * Description: Вывод контента страниц и блоков через шорткоды.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      Roman Bolandeu
  * GitHub Plugin URI: https://github.com/vash-akkount/rb-snippets
  */
